@@ -1,0 +1,91 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Base layer: warm root transitions for theme toggle ── */
+@layer base {
+  html {
+    @apply bg-cream text-ink font-sans;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+    /* Accessible tomato for small interactive text on cream — #B03B2B = 6.1:1 (WCAG AA) */
+    --tomato-accessible: #B03B2B;
+  }
+  html.dark {
+    @apply bg-espresso text-parchment;
+    /* tomato-dark (#E8604E) on espresso (#121110) ≈ 6.4:1 — passes WCAG AA */
+    --tomato-accessible: #E8604E;
+  }
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+  }
+  #root {
+    min-height: 100vh;
+  }
+}
+
+/* ── Theme transition on non-motion users — add class after mount to avoid flash ── */
+.theme-ready,
+.theme-ready * {
+  transition: background-color 300ms ease, color 300ms ease, border-color 300ms ease;
+}
+
+/* ── Grain texture overlay ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+}
+html.dark body::before {
+  opacity: 0.045;
+}
+
+/* ── Custom scrollbar — thin, warm-toned ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #E8D9C0; border-radius: 9999px; }
+html.dark ::-webkit-scrollbar-thumb { background: #3A3733; }
+
+/* ── Recommendation card header tint ──
+   Light mode: pale accent over white. Dark mode: deeper accent over the near-black card,
+   so the band reads as designed instead of a washed-out pastel. (r4-design-review #2) */
+.mood-header {
+  background: color-mix(in srgb, var(--mood-accent-light) 60%, white);
+}
+html.dark .mood-header {
+  background: color-mix(in srgb, var(--mood-accent-dark) 32%, #1E1C1A);
+}
+
+/* ── Dark mode neutral elevation shadows ──
+   On dark chocolate surfaces, rgba warm-black shadows are invisible.
+   Override the Tailwind shadow utilities with pure-black at higher opacity (r5 §9B). */
+html.dark .shadow-sm { box-shadow: 0 1px 3px rgba(0, 0, 0, 0.30); }
+html.dark .shadow-md { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.40); }
+html.dark .shadow-lg { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.50); }
+html.dark .shadow-xl { box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55); }
+
+/* ── Save icon color transition — settles after the scale pop (r5 §1B) ── */
+.save-icon-transition {
+  transition: color 120ms ease, fill 120ms ease;
+}
+
+/* ── Reduced motion: collapse all animations ── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
