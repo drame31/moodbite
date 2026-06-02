@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import { useLocalStorage } from './hooks/useLocalStorage';
@@ -37,9 +37,10 @@ export default function App() {
   const favorites = Array.isArray(rawFavorites) ? rawFavorites : [];
   const theme = rawTheme === 'dark' ? 'dark' : 'light';
 
-  // ── AnimatePresence mode — ref so it doesn't cause re-renders ────────────
-  // 'wait' for mood change, 'sync' for filter toggle / try-another (r3-react-integration §4E)
-  const transitionMode = useRef('wait');
+  // ── transitionMode as state — concurrent-safe (was useRef, which is mutable
+  // and not guaranteed to be read correctly by concurrent React scheduler)
+  // 'wait' for mood change, 'sync' for filter toggle / try-another
+  const [transitionMode, setTransitionMode] = useState('wait');
 
   // ── Derived values ────────────────────────────────────────────────────────
   const recsForCurrentMood = selectedMood
@@ -53,6 +54,14 @@ export default function App() {
     : false;
 
   const selectedMoodObj = MOODS.find(m => m.id === selectedMood) ?? null;
+
+  // ── Mood-aware filter: compute which tags have ≥1 match for the active mood.
+  // Computed from data at render — never hardcoded, stays accurate if recs change.
+  const zeroMatchTags = selectedMood
+    ? ALL_TAGS.filter(tag =>
+        !recsForCurrentMood.some(rec => rec.tags.includes(tag))
+      )
+    : [];
 
   // ── Theme side-effect (only useEffect in App besides mount) ──────────────
   useEffect(() => {
@@ -72,14 +81,14 @@ export default function App() {
   // Re-click the ALREADY-active mood → re-randomize (try another), keep filters (r3-reconciliation §2)
   const handleMoodSelect = (moodId) => {
     if (moodId === selectedMood) {
-      transitionMode.current = 'sync';
+      setTransitionMode('sync');
       if (currentRecommendation) {
         const next = getNextRecommendation(filteredPool, currentRecommendation.id);
         if (next) setCurrentRecommendation(next);
       }
       return;
     }
-    transitionMode.current = 'wait';
+    setTransitionMode('wait');
     // Reset activeTags and compute pool with [] directly — closure is stale here
     setSelectedMood(moodId);
     setActiveTags([]);
@@ -89,7 +98,7 @@ export default function App() {
 
   // Behavior 2: Filter toggle — AND semantics, re-randomize within filtered pool
   const handleTagToggle = (tag) => {
-    transitionMode.current = 'sync';
+    setTransitionMode('sync');
     const newTags = activeTags.includes(tag)
       ? activeTags.filter(t => t !== tag)
       : [...activeTags, tag];
@@ -100,7 +109,7 @@ export default function App() {
 
   // Behavior 4: Randomize — excludes current rec
   const handleRandomize = () => {
-    transitionMode.current = 'sync';
+    setTransitionMode('sync');
     if (!currentRecommendation) return;
     const next = getNextRecommendation(filteredPool, currentRecommendation.id);
     if (next) setCurrentRecommendation(next);
@@ -127,7 +136,7 @@ export default function App() {
 
   // Behavior 10: Clear filters
   const handleClearFilters = () => {
-    transitionMode.current = 'sync';
+    setTransitionMode('sync');
     setActiveTags([]);
     const pool = getRecsForMood(moodRecommendations, selectedMood);
     setCurrentRecommendation(pickRandom(pool));
@@ -135,6 +144,14 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-cream dark:bg-espresso">
+      {/* Skip-nav — WCAG 2.4.1. First focusable element in the page. */}
+      <a
+        href="#moods"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:bg-ink dark:focus:bg-parchment focus:text-parchment dark:focus:text-ink focus:font-sans focus:text-sm focus:px-4 focus:py-2 focus:rounded-md focus:shadow-md focus:outline-none"
+      >
+        Skip to moods
+      </a>
+
       <Header theme={theme} onThemeToggle={handleThemeToggle} />
 
       {/* Offset content below fixed header */}
@@ -151,19 +168,6 @@ export default function App() {
         <section id="recommendations" className="bg-cream dark:bg-espresso py-12 md:py-20">
           <div className="max-w-content mx-auto px-6">
 
-            {/* Per-mood selected-state microcopy (r3-reconciliation §6) */}
-            {selectedMoodObj && (
-              <motion.p
-                key={selectedMoodObj.id}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.3 }}
-                className="font-sans text-sm text-ink-soft dark:text-parchment-soft italic mb-6 max-w-lg"
-              >
-                {selectedMoodObj.selectedMicrocopy}
-              </motion.p>
-            )}
-
             <FilterBar
               availableTags={ALL_TAGS}
               activeTags={activeTags}
@@ -171,7 +175,22 @@ export default function App() {
               onClearFilters={handleClearFilters}
               disabled={selectedMood === null}
               moodAccent={selectedMood ? MOOD_COLOR_THEMES[selectedMood]?.accent : undefined}
+              zeroMatchTags={zeroMatchTags}
+              moodLabel={selectedMoodObj?.label ?? ''}
             />
+
+            {/* Per-mood selected-state microcopy — non-italic, positioned below FilterBar */}
+            {selectedMoodObj && (
+              <motion.p
+                key={selectedMoodObj.id}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3 }}
+                className="font-sans text-sm text-ink-soft dark:text-parchment-soft mb-6 max-w-lg"
+              >
+                {selectedMoodObj.selectedMicrocopy}
+              </motion.p>
+            )}
 
             {/* Branch 1: Dormant — no mood selected (r5 §7A) */}
             {selectedMood === null && (
@@ -202,7 +221,7 @@ export default function App() {
                     🎵
                   </span>
                 </div>
-                <p className="font-mono text-xs text-ink-muted dark:text-parchment-muted uppercase tracking-wider mb-2">
+                <p className="font-mono text-xs text-ink-soft dark:text-parchment-soft uppercase tracking-wider mb-2">
                   waiting for your mood
                 </p>
                 <p className="font-sans text-base text-ink-muted dark:text-parchment-muted max-w-xs">
@@ -230,20 +249,20 @@ export default function App() {
                 aria-live="polite"
                 aria-label={`Current recommendation for ${selectedMoodObj?.label ?? 'selected'} mood`}
               >
-                <AnimatePresence mode={transitionMode.current}>
+                <AnimatePresence mode={transitionMode}>
                   <motion.div
                     key={currentRecommendation.id}
-                    initial={{ opacity: 0, y: transitionMode.current === 'sync' ? 8 : 16 }}
+                    initial={{ opacity: 0, y: transitionMode === 'sync' ? 8 : 16 }}
                     animate={{ opacity: 1, y: 0 }}
-                    // Enter: ease-out, settles in (280ms). Exit: ease-in, departs quickly (160ms). (r2-uxui-spec §10)
-                    // Sync mode uses half the y displacement — reads as "same shelf, next card" (r5 §3)
+                    // Enter: ease-out, settles in (280ms). Exit: ease-in, departs quickly (160ms).
+                    // Sync mode uses half the y displacement — reads as "same shelf, next card"
                     exit={{
                       opacity: 0,
-                      y: transitionMode.current === 'sync' ? -4 : -8,
+                      y: transitionMode === 'sync' ? -4 : -8,
                       transition: { duration: 0.16, ease: [0.4, 0, 1, 1] },
                     }}
                     transition={{
-                      duration: transitionMode.current === 'wait' ? 0.28 : 0.2,
+                      duration: transitionMode === 'wait' ? 0.28 : 0.2,
                       ease: [0, 0, 0.2, 1],
                     }}
                     className="lg:flex lg:gap-8 lg:items-start"
@@ -270,6 +289,7 @@ export default function App() {
         <FavoritesPanel
           favorites={favorites}
           onRemoveFavorite={handleRemoveFavorite}
+          theme={theme}
         />
 
         <HowItWorks />
@@ -281,11 +301,15 @@ export default function App() {
               <span className="font-display font-bold text-lg text-ink dark:text-parchment">
                 MoodBite<span className="text-tomato">·</span>
               </span>
+              {/* Tech stack line — React · JavaScript · Tailwind · localStorage */}
+              <p className="font-mono text-xs text-ink-soft dark:text-parchment-soft uppercase tracking-wider mt-1">
+                React · JavaScript · Tailwind · localStorage
+              </p>
               <p className="font-sans text-sm text-ink-muted dark:text-parchment-muted mt-1 max-w-xs">
-                A fictional project. No real restaurants were harmed. Built by Derek Muñoz.
+                A fictional project. No real restaurants were harmed. Built by Derek Muñoz · 2026.
               </p>
             </div>
-            <p className="font-mono text-xs text-ink-muted dark:text-parchment-muted uppercase tracking-wider shrink-0">
+            <p className="font-mono text-xs text-ink-soft dark:text-parchment-soft uppercase tracking-wider shrink-0">
               2026 · made in Costa Rica
             </p>
           </div>

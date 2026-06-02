@@ -1,7 +1,19 @@
 import { readableOn } from '../utils/color';
 import { TAG_LABELS } from '../data/moodRecommendations';
 
-export default function FilterBar({ availableTags, activeTags, onTagToggle, onClearFilters, disabled, moodAccent }) {
+// FilterBar receives zeroMatchTags from App.jsx — an array of tag slugs that have
+// zero matching recs for the active mood. These chips are dimmed but NOT removed,
+// so the layout stays stable and screen readers know they exist but are unavailable.
+export default function FilterBar({
+  availableTags,
+  activeTags,
+  onTagToggle,
+  onClearFilters,
+  disabled,
+  moodAccent,
+  zeroMatchTags = [],
+  moodLabel = '',
+}) {
   return (
     <div
       role="group"
@@ -11,6 +23,31 @@ export default function FilterBar({ availableTags, activeTags, onTagToggle, onCl
       {availableTags.map(tag => {
         const isActive = activeTags.includes(tag);
         const label = TAG_LABELS[tag] ?? tag;
+        // A tag is dimmed when a mood is selected and that tag has zero matching recs.
+        // Do not dim active tags (active selection should stay visible to show current state).
+        const isDimmed = !disabled && !isActive && zeroMatchTags.includes(tag);
+
+        if (isDimmed) {
+          return (
+            // Dimmed chip: opacity 0.38, pointer-events none, aria-disabled.
+            // Uses aria-disabled NOT the disabled attribute — disabled removes from a11y tree.
+            <span
+              key={tag}
+              role="button"
+              aria-disabled="true"
+              aria-label={`${label} — no matches for ${moodLabel}`}
+              tabIndex={-1}
+              className="font-sans text-sm px-3 py-1.5 rounded-full border min-h-[44px] min-w-[44px] inline-flex items-center font-medium border-sand dark:border-bark text-ink-soft dark:text-parchment-soft cursor-not-allowed"
+              style={{
+                opacity: 0.38,
+                pointerEvents: 'none',
+                transition: 'opacity 200ms ease',
+              }}
+            >
+              {label}
+            </span>
+          );
+        }
 
         return (
           <button
@@ -21,11 +58,11 @@ export default function FilterBar({ availableTags, activeTags, onTagToggle, onCl
             aria-pressed={isActive}
             aria-label={isActive ? `Remove ${label} filter` : `Filter by ${label}`}
             onClick={() => !disabled && onTagToggle(tag)}
-            // Inline style handles background transition across class↔inline-style boundary (r5 §1F)
+            // Inline style handles background transition across class↔inline-style boundary
             style={{
               backgroundColor: isActive ? moodAccent : undefined,
               color: isActive ? readableOn(moodAccent) : undefined,
-              transition: 'background-color 150ms ease, color 150ms ease',
+              transition: 'background-color 150ms ease, color 150ms ease, opacity 200ms ease',
             }}
             className={[
               'font-sans text-sm px-3 py-1.5 rounded-full border min-h-[44px] min-w-[44px]',

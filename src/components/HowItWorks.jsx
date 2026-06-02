@@ -30,7 +30,7 @@ export default function HowItWorks() {
           className="mb-12"
         >
           {/* Mono eyebrow — same system as the Moods + Favorites sections */}
-          <p className="font-mono text-xs text-ink-muted dark:text-parchment-muted uppercase tracking-wider mb-2">
+          <p className="font-mono text-xs text-ink-soft dark:text-parchment-soft uppercase tracking-wider mb-2">
             how it works
           </p>
           <h2 className="font-display text-xl font-semibold text-ink dark:text-parchment">

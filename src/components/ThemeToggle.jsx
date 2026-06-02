@@ -9,7 +9,7 @@ export default function ThemeToggle({ theme, onToggle }) {
       type="button"
       onClick={onToggle}
       aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-      className="rounded-full p-2 text-ink-soft dark:text-parchment-soft hover:bg-cream-muted dark:hover:bg-espresso-muted transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tomato dark:focus-visible:ring-mango focus-visible:ring-offset-2"
+      className="rounded-full p-3 min-h-[44px] min-w-[44px] flex items-center justify-center text-ink-soft dark:text-parchment-soft hover:bg-cream-muted dark:hover:bg-espresso-muted transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tomato dark:focus-visible:ring-mango focus-visible:ring-offset-2"
     >
       <AnimatePresence mode="wait" initial={false}>
         <motion.span

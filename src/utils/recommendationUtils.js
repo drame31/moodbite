@@ -1,6 +1,20 @@
 // src/utils/recommendationUtils.js
 // All functions are pure. No React imports. No side effects. No mutation.
 
+import { MOOD_COLOR_THEMES } from '../data/moodRecommendations';
+
+/**
+ * Returns the color theme for a recommendation, derived from MOOD_COLOR_THEMES[rec.mood].
+ * Replaces the old per-rec colorTheme field so saved favorites always reflect the current
+ * accent palette even if the mood accent has changed since the item was saved.
+ *
+ * @param {object} rec - recommendation object (must have a `mood` field)
+ * @returns {object} color theme with accent, accentDark, accentLight, accentDim
+ */
+export function getColorTheme(rec) {
+  return MOOD_COLOR_THEMES[rec?.mood] ?? MOOD_COLOR_THEMES['happy'];
+}
+
 /**
  * Returns all recommendations for a given mood id.
  * O(1) lookup on the grouped data object.

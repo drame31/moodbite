@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Clock, Bookmark, BookmarkCheck } from 'lucide-react';
 import { TAG_LABELS } from '../data/moodRecommendations';
+import { getColorTheme } from '../utils/recommendationUtils';
 
 // PrepTimeBadge: if value starts with a digit, prepend ~. Otherwise show as-is ("Order it").
 function PrepTimeBadge({ value }) {
@@ -22,7 +23,7 @@ function IntensityDots({ intensity }) {
       aria-label={`Intensity: ${intensity} of 3`}
       title={`Intensity: ${intensity} of 3`}
     >
-      <span className="font-mono text-xs text-ink-muted dark:text-parchment-muted uppercase tracking-wider mr-1">
+      <span className="font-mono text-xs text-ink-soft dark:text-parchment-soft uppercase tracking-wider mr-1">
         Intensity
       </span>
       {[1, 2, 3].map(i => (
@@ -44,7 +45,9 @@ export default function RecommendationMeta({
   onRandomize,
 }) {
   const [showToast, setShowToast] = useState(false);
-  const { tags, intensity, estimatedPrepTime, colorTheme } = recommendation;
+  const { tags, intensity, estimatedPrepTime } = recommendation;
+  // Derive color theme from mood — never stale, correct for saved favorites
+  const colorTheme = getColorTheme(recommendation);
 
   // Auto-dismiss toast after 2500ms
   useEffect(() => {

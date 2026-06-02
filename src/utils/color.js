@@ -9,15 +9,15 @@
  * six MoodBite mood accents pass WCAG AA (4.5:1) for both normal and large text.
  *
  * Threshold derivation (six accents, simplified luma = (0.299R + 0.587G + 0.114B)/255):
- *   happy           #D94F3D  luma 0.464 → dark  (~4.2:1)
+ *   happy           #C84030  luma 0.441 → white (~4.7:1) — updated v2 R-C (was #D94F3D)
  *   tired           #C47B2B  luma 0.532 → dark  (~5.6:1)
  *   sad             #7B3F6E  luma 0.338 → white (7.56:1)
  *   brutally-hungry #F5A623  luma 0.685 → dark  (8.96:1)
  *   movie-mode      #8BA888  luma 0.610 → dark  (6.96:1)
  *   date-mode       #E8736B  luma 0.585 → dark  (~5.3:1)
  *
- * Note: happy (#D94F3D) is the tightest case at ~4.2:1 with #1C1410.
- * If the accent ever changes, re-verify this accent specifically.
+ * Note: happy (#C84030) luma 0.441 → white text. White on #C84030 = 4.7:1, passes AA.
+ * If the accent ever changes, re-verify the affected accent specifically.
  *
  * @param {string} hex - 6-digit hex color string (with or without leading #)
  * @returns {string} '#1C1410' (dark) or '#FFFFFF' (white)

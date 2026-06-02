@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion';
 import { SearchX } from 'lucide-react';
-import { useMemo } from 'react';
 import { TAG_LABELS } from '../data/moodRecommendations';
 
 // Rotating trailing phrases — picked once per tag combination change (r3-data-logic-spec §D.3)
@@ -13,12 +12,17 @@ const TRAILING_PHRASES = [
   'The mood has opinions.',
 ];
 
+// Deterministic index from a string — pure, no Math.random in render.
+// Same tag combination always resolves to the same phrase; different combo → different phrase.
+function pickPhraseIndex(key) {
+  let hash = 0;
+  for (let i = 0; i < key.length; i++) hash = (hash * 31 + key.charCodeAt(i)) >>> 0;
+  return hash % TRAILING_PHRASES.length;
+}
+
 export default function EmptyState({ activeTags, onClearFilters, moodLabel }) {
-  // useMemo with activeTags as dep key — recalculates only when the combination changes
-  const trailingPhrase = useMemo(() => {
-    return TRAILING_PHRASES[Math.floor(Math.random() * TRAILING_PHRASES.length)];
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTags.join(',')]);
+  const tagKey = activeTags.join(',');
+  const trailingPhrase = TRAILING_PHRASES[pickPhraseIndex(tagKey)];
 
   const tagNames = activeTags.map(t => TAG_LABELS[t] ?? t).join(' and ');
 

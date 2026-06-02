@@ -8,12 +8,12 @@ export default {
       colors: {
         cream:    { DEFAULT: '#FDF8F0', warm: '#FAF3E4', card: '#FFFFFF', muted: '#F2EBD9' },
         ink:      { DEFAULT: '#1C1410', soft: '#5C4A38', muted: '#9C7F65', inverse: '#FDF8F0' },
-        // Dark surfaces: near-black charcoal with a whisper of warmth (not brown)
-        espresso: { DEFAULT: '#121110', warm: '#1A1817', card: '#1E1C1A', muted: '#2A2724' },
+        // Dark surfaces: deeper near-black with just a whisper of warmth (not brown)
+        espresso: { DEFAULT: '#0C0B0A', warm: '#131211', card: '#171514', muted: '#221F1D' },
         sand:     { DEFAULT: '#E8D9C0', muted: '#F0E6D3' },
-        bark:     { DEFAULT: '#33302C', muted: '#262320' },
+        bark:     { DEFAULT: '#2C2926', muted: '#1F1D1B' },
         parchment: { DEFAULT: '#F5EDD8', soft: '#C4A882', muted: '#8B6F52' },
-        tomato:   { DEFAULT: '#D94F3D', dark: '#E8604E', light: '#FFF0EE', dim: '#3D1410' },
+        tomato:   { DEFAULT: '#C84030', dark: '#E8604E', light: '#FFF0EE', dim: '#3D1410' },
         mango:    { DEFAULT: '#F5A623', dark: '#F7B53A', light: '#FFFBE8', dim: '#3D2A00' },
         basil:    { DEFAULT: '#3A7D44', dark: '#4E9E5A' },
         caramel:  { DEFAULT: '#C47B2B', dark: '#D4924A', light: '#FFF6E8', dim: '#3A2200' },

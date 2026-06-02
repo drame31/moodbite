@@ -63,7 +63,7 @@ html.dark ::-webkit-scrollbar-thumb { background: #3A3733; }
   background: color-mix(in srgb, var(--mood-accent-light) 60%, white);
 }
 html.dark .mood-header {
-  background: color-mix(in srgb, var(--mood-accent-dark) 32%, #1E1C1A);
+  background: color-mix(in srgb, var(--mood-accent-dark) 32%, #171514);
 }
 
 /* ── Dark mode neutral elevation shadows ──

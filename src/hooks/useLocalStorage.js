@@ -31,9 +31,7 @@ export function useLocalStorage(key, initialValue) {
       window.localStorage.setItem(key, JSON.stringify(valueToStore));
     } catch {
       // Catches: QuotaExceededError (storage full), SecurityError (mid-session block)
-      // State was already updated — UI is correct for this session. Storage unchanged.
-      const valueToStore = value instanceof Function ? value(storedValue) : value;
-      setStoredValue(valueToStore);
+      // State was already updated above — UI is correct for this session. Storage unchanged.
     }
   };
 

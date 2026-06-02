@@ -57,7 +57,7 @@ function MoodChip({ mood, isActive, onSelect, index }) {
       <span className={`font-sans ${isActive ? 'font-semibold' : 'font-medium'} text-md ${textClass}`}>{mood.label}</span>
       <span
         className={`font-sans text-sm ${subtitleClass} mt-0.5`}
-        style={isActive ? { color: activeTextColor, opacity: 0.75 } : undefined}
+        style={isActive ? { color: activeTextColor } : undefined}
       >
         {mood.subtitle}
       </span>
@@ -75,7 +75,7 @@ export default function MoodSelector({ moods, selectedMood, onMoodSelect }) {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.15 }}
           transition={{ duration: 0.35, ease: [0, 0, 0.2, 1] }}
-          className="font-mono text-xs text-ink-muted dark:text-parchment-muted uppercase tracking-wider mb-2"
+          className="font-mono text-xs text-ink-soft dark:text-parchment-soft uppercase tracking-wider mb-2"
         >
           six moods
         </motion.p>
@@ -85,7 +85,7 @@ export default function MoodSelector({ moods, selectedMood, onMoodSelect }) {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.15 }}
           transition={{ duration: 0.4, ease: [0, 0, 0.2, 1] }}
-          className="font-display text-xl font-semibold text-ink dark:text-parchment mb-8"
+          className="font-display text-2xl font-bold text-ink dark:text-parchment mb-8"
         >
           How are you feeling?
         </motion.h2>

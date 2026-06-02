@@ -3,8 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Bookmark, Heart } from 'lucide-react';
 import FavoriteCard from './FavoriteCard';
 
-export default function FavoritesPanel({ favorites, onRemoveFavorite }) {
+export default function FavoritesPanel({ favorites, onRemoveFavorite, theme }) {
   const isEmpty = favorites.length === 0;
+  const isDark = theme === 'dark';
   const [showRemoveToast, setShowRemoveToast] = useState(false);
 
   // Auto-dismiss remove toast after 2000ms (r5 copy §2.1)
@@ -28,7 +29,7 @@ export default function FavoritesPanel({ favorites, onRemoveFavorite }) {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.15 }}
           transition={{ duration: 0.35, ease: [0, 0, 0.2, 1] }}
-          className="font-mono text-xs text-ink-muted dark:text-parchment-muted uppercase tracking-wider mb-2"
+          className="font-mono text-xs text-ink-soft dark:text-parchment-soft uppercase tracking-wider mb-2"
         >
           saved bites
         </motion.p>
@@ -97,7 +98,7 @@ export default function FavoritesPanel({ favorites, onRemoveFavorite }) {
                       delay: i * 0.06,
                     }}
                   >
-                    <FavoriteCard fav={fav} onRemove={handleRemove} />
+                    <FavoriteCard fav={fav} onRemove={handleRemove} isDark={isDark} />
                   </motion.div>
                 ))}
               </AnimatePresence>

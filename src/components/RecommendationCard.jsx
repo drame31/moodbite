@@ -1,4 +1,6 @@
 import { Utensils, Coffee, Music, Sunset, ExternalLink } from 'lucide-react';
+import { getColorTheme } from '../utils/recommendationUtils';
+import RecommendationDetails from './RecommendationDetails';
 
 // Defense-in-depth: only render playlist anchors for https:// URLs.
 // Rejects javascript:/data:/other schemes if a contributor adds a bad record.
@@ -10,7 +12,7 @@ function InfoCell({ icon: Icon, label, value, note, extra }) {
     <div className="flex flex-col gap-1">
       <div className="flex items-center gap-1.5">
         <Icon size={14} className="text-ink-muted dark:text-parchment-muted shrink-0" />
-        <span className="font-mono text-xs text-ink-muted dark:text-parchment-muted uppercase tracking-wider">
+        <span className="font-mono text-xs text-ink-soft dark:text-parchment-soft uppercase tracking-wider">
           {label}
         </span>
       </div>
@@ -21,10 +23,12 @@ function InfoCell({ icon: Icon, label, value, note, extra }) {
   );
 }
 
-// The editorial recommendation card: header band + 2×2 info grid.
+// The editorial recommendation card: header band + WHY THIS FITS zone + 2×2 info grid.
 // Tags, prep time, intensity, and actions live in RecommendationMeta (right column on desktop).
 export default function RecommendationCard({ recommendation }) {
-  const { food, drink, playlist, ambiance, description, emoji, colorTheme, title } = recommendation;
+  const { food, drink, playlist, ambiance, description, emoji, title, reason } = recommendation;
+  // Derive color theme from mood — never stale, works correctly for saved favorites
+  const colorTheme = getColorTheme(recommendation);
 
   return (
     <div
@@ -51,6 +55,9 @@ export default function RecommendationCard({ recommendation }) {
           </div>
         </div>
       </div>
+
+      {/* WHY THIS FITS zone — between header and info grid */}
+      {reason && <RecommendationDetails reason={reason} />}
 
       {/* Info grid — 2×2 */}
       <div className="px-6 pb-6 bg-cream-card dark:bg-espresso-card">

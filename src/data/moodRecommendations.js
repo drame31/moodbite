@@ -1,8 +1,6 @@
 // src/data/moodRecommendations.js
-// R4 build — all copy from r2-copy-deck.md, engineering fields from r3-data-logic-spec.md
-// Tags: kebab-case throughout (r3 conflict resolution §1)
-// Intensity: 1–3 scale, values clamped from copy deck 1–5 (r3 conflict resolution §2)
-// IDs: zero-padded (r3 conflict resolution §3)
+// v2 R-C build — reason + category fields added, colorTheme removed (derived via getColorTheme()),
+// mood labels renamed (Movie night / Date night), data fixes applied, Spotify URLs deduplicated.
 
 // ─── Canonical constants ─────────────────────────────────────────────────────
 
@@ -36,18 +34,20 @@ export const MOODS = [
     selectedMicrocopy: "For when your battery is at 3% but hunger is at 98%. Let's skip the niceties.",
   },
   {
+    // ID stays movie-mode — localStorage key protection
     id: 'movie-mode',
-    label: 'Movie Mode',
+    label: 'Movie night',
     emoji: '🎬',
     subtitle: 'lights down, snacks up',
-    selectedMicrocopy: 'Movie mode detected. Crunch level: cinematic. Interruptions: none.',
+    selectedMicrocopy: 'Movie night. Crunch level: cinematic. Interruptions: none.',
   },
   {
+    // ID stays date-mode — localStorage key protection
     id: 'date-mode',
-    label: 'Date Mode',
+    label: 'Date night',
     emoji: '🕯️',
     subtitle: 'low-key impressive',
-    selectedMicrocopy: 'Date mode. The food is doing all the right things. You just show up.',
+    selectedMicrocopy: 'Date night. The food is doing all the right things. You just show up.',
   },
 ];
 
@@ -60,8 +60,7 @@ export const ALL_TAGS = [
   'budget-friendly',
 ];
 
-// Canonical display labels for tag slugs — single source of truth (F-04c fix: was duplicated
-// in FilterBar, RecommendationMeta, EmptyState, FavoriteCard — now imported from here).
+// Canonical display labels for tag slugs — single source of truth.
 export const TAG_LABELS = {
   'comfort-food':    'Comfort food',
   'healthy':         'Healthy',
@@ -80,15 +79,10 @@ export const MOOD_COLOR_THEMES = {
   'date-mode':       { accent: '#E8736B', accentDark: '#F08B84', accentLight: '#FFF2F1', accentDim: '#3D1714' },
 };
 
-// ─── Per-mood colorTheme constants (copied verbatim into each rec object) ────
-const HAPPY_THEME   = { accent: '#C84030', accentDark: '#E8604E', accentLight: '#FDECEA', accentDim: '#3D1A14' };
-const TIRED_THEME   = { accent: '#C47B2B', accentDark: '#D4924A', accentLight: '#FBF0E0', accentDim: '#3A200A' };
-const SAD_THEME     = { accent: '#7B3F6E', accentDark: '#9B5490', accentLight: '#F4EBF2', accentDim: '#2A0F26' };
-const HUNGRY_THEME  = { accent: '#F5A623', accentDark: '#F7B53A', accentLight: '#FFFBE8', accentDim: '#3D2A00' };
-const MOVIE_THEME   = { accent: '#8BA888', accentDark: '#A0C49D', accentLight: '#F0F5F0', accentDim: '#1E2E1D' };
-const DATE_THEME    = { accent: '#E8736B', accentDark: '#F08B84', accentLight: '#FFF2F1', accentDim: '#3D1714' };
-
 // ─── Recommendations ─────────────────────────────────────────────────────────
+// colorTheme removed from all rec objects — derive at render via getColorTheme(rec)
+// from src/utils/recommendationUtils.js. This ensures saved favorites always reflect
+// the current palette even after an accent color change.
 
 export const moodRecommendations = {
 
@@ -97,6 +91,7 @@ export const moodRecommendations = {
     {
       id: 'happy-01',
       mood: 'happy',
+      category: 'comfort',
       title: 'The Usual, But Make It a Moment',
       food: {
         name: 'Margherita Pizza',
@@ -114,15 +109,16 @@ export const moodRecommendations = {
       },
       ambiance: 'All the windows open, something good on low in the background.',
       description: "The best meals aren't always elaborate. Sometimes perfect is a pizza and the right company.",
+      reason: "Margherita pizza is the food equivalent of a good mood — uncomplicated, satisfying, hard to ruin. The Blood Orange San Pellegrino and a warm playlist keep the energy exactly where a happy afternoon belongs.",
       tags: ['comfort-food', 'fast'],
       intensity: 3,
       estimatedPrepTime: '20 min',
       emoji: '🍕',
-      colorTheme: HAPPY_THEME,
     },
     {
       id: 'happy-02',
       mood: 'happy',
+      category: 'fresh',
       title: 'Brunch Energy, Any Day of the Week',
       food: {
         name: 'Avocado Toast with Poached Eggs',
@@ -140,15 +136,16 @@ export const moodRecommendations = {
       },
       ambiance: 'Sunlight hitting the table at the right angle.',
       description: "This one's for when life is actually going okay. You know the feeling — lean into it.",
+      reason: "Avocado toast and a frothy oat latte are the visual language of a good day — fresh, a little indulgent. The Sunday Morning Brunch playlist stretches that energy into something that actually lasts.",
       tags: ['healthy', 'sweet'],
       intensity: 2,
       estimatedPrepTime: '15 min',
       emoji: '🥑',
-      colorTheme: HAPPY_THEME,
     },
     {
       id: 'happy-03',
       mood: 'happy',
+      category: 'fresh',
       title: 'Street Taco Tuesday (Any Day Counts)',
       food: {
         name: 'Carne Asada Tacos',
@@ -166,15 +163,16 @@ export const moodRecommendations = {
       },
       ambiance: 'Napkins on the table, juice running down your hand, zero regrets.',
       description: 'There is no happy mood that tacos cannot confirm. This one practically throws a party.',
+      reason: "Carne asada tacos are built for good moods — loud flavors, a little mess, no patience for anything precious. Hibiscus Agua Fresca keeps it bright, and Baila matches the energy of a moment worth celebrating.",
       tags: ['fast', 'spicy', 'budget-friendly'],
       intensity: 3,
       estimatedPrepTime: '25 min',
       emoji: '🌮',
-      colorTheme: HAPPY_THEME,
     },
     {
       id: 'happy-04',
       mood: 'happy',
+      category: 'comfort',
       title: 'Cheeseburger, Fully Loaded',
       food: {
         name: 'Smash Burger',
@@ -192,15 +190,16 @@ export const moodRecommendations = {
       },
       ambiance: 'Nowhere to be, something to look forward to.',
       description: 'Some food just tastes like winning. This is that food.',
+      reason: "A double smash burger with a chocolate milkshake is unabashedly happy food — high satisfaction, zero apology. Happy Hits in the background and nowhere to be is exactly the setup a good mood wants to land in.",
       tags: ['comfort-food', 'fast'],
       intensity: 3,
       estimatedPrepTime: '20 min',
       emoji: '🍔',
-      colorTheme: HAPPY_THEME,
     },
     {
       id: 'happy-05',
       mood: 'happy',
+      category: 'fresh',
       title: "Pad Thai for One (or Two, if You're Sharing)",
       food: {
         name: 'Pad Thai',
@@ -218,11 +217,11 @@ export const moodRecommendations = {
       },
       ambiance: 'Takeout containers optional, chopsticks mandatory.',
       description: "The dish you reach for when nothing is wrong and that just feels like a reason to eat well. Right call.",
+      reason: "Pad Thai with shrimp is comfort with brightness built in — the lime and crunch keep it from feeling heavy. Thai Iced Tea and a Feel-Good Indie soundtrack are the right finish when everything is already going okay.",
       tags: ['spicy', 'budget-friendly'],
       intensity: 2,
       estimatedPrepTime: '30 min',
       emoji: '🍜',
-      colorTheme: HAPPY_THEME,
     },
   ],
 
@@ -231,6 +230,7 @@ export const moodRecommendations = {
     {
       id: 'tired-01',
       mood: 'tired',
+      category: 'comfort',
       title: 'The Pot of Soup That Fixes Things',
       food: {
         name: 'Tomato Basil Soup with Grilled Cheese',
@@ -248,15 +248,16 @@ export const moodRecommendations = {
       },
       ambiance: 'Blanket nearby, low light, phone face down.',
       description: "You don't need to explain why you're tired. This one doesn't ask. It just helps.",
+      reason: "Tomato soup and grilled cheese is the tired-day standard for a reason — warm, soft, almost no attention to eat. The chamomile tea and ambient Sleep playlist are both engineered for the same outcome: getting you to stop.",
       tags: ['comfort-food', 'budget-friendly'],
       intensity: 1,
       estimatedPrepTime: '15 min',
       emoji: '🍵',
-      colorTheme: TIRED_THEME,
     },
     {
       id: 'tired-02',
       mood: 'tired',
+      category: 'comfort',
       title: "Pasta Like Your Brain Isn't Working",
       food: {
         name: 'Cacio e Pepe',
@@ -274,15 +275,16 @@ export const moodRecommendations = {
       },
       ambiance: 'Kitchen cleanup optional. Eat directly from the pot if needed. No judgment.',
       description: 'This one feels like emotional support fries, but make it pasta. Exactly as few steps as it sounds.',
+      reason: "Cacio e pepe is the right pasta for a tired brain — four ingredients, no decisions, 20 minutes. The lo-fi playlist and sparkling water are both there for the same reason: doing less is doing the right thing.",
       tags: ['comfort-food', 'fast', 'budget-friendly'],
       intensity: 2,
       estimatedPrepTime: '20 min',
       emoji: '🍝',
-      colorTheme: TIRED_THEME,
     },
     {
       id: 'tired-03',
       mood: 'tired',
+      category: 'comfort',
       title: 'The Breakfast-for-Dinner Pivot',
       food: {
         name: 'Scrambled Eggs and Toast',
@@ -298,17 +300,18 @@ export const moodRecommendations = {
         // Spotify "Peaceful Piano" editorial playlist — verify URL
         url: 'https://open.spotify.com/playlist/37i9dQZF1DX4sWSpwq3LiO',
       },
-      ambiance: 'Table optional. Couch entirely acceptable. Turn on something you\'ve already seen.',
+      ambiance: "Table optional. Couch entirely acceptable. Turn on something you've already seen.",
       description: 'At the end of a long day, sometimes the best thing you can eat is the simplest thing you know how to make.',
+      reason: "Scrambled eggs and toast: no recipe, no prep anxiety, 10 minutes. Warm milk with honey works (the tryptophan is real), and solo piano gives the evening somewhere quiet to land.",
       tags: ['comfort-food', 'fast', 'budget-friendly'],
       intensity: 1,
       estimatedPrepTime: '10 min',
       emoji: '🥚',
-      colorTheme: TIRED_THEME,
     },
     {
       id: 'tired-04',
       mood: 'tired',
+      category: 'comfort',
       title: 'Ramen Without the Effort',
       food: {
         name: 'Shoyu Ramen',
@@ -325,16 +328,17 @@ export const moodRecommendations = {
         url: 'https://open.spotify.com/playlist/37i9dQZF1DWWQRwui0ExPn',
       },
       ambiance: 'Steam rising, small bowl, the good light left on in the kitchen.',
-      description: 'A bowl of noodles at the end of a hard day is not a small thing. It\'s actually the whole point.',
+      description: "A bowl of noodles at the end of a hard day is not a small thing. It's actually the whole point.",
+      reason: "Instant shoyu ramen with a soft-boiled egg is a tired-day upgrade that costs almost nothing extra. Hot green tea and the Japanese Lo-Fi Chill playlist — rain sounds, soft keys — turn 10 minutes of prep into a moment.",
       tags: ['comfort-food', 'fast', 'budget-friendly'],
       intensity: 2,
       estimatedPrepTime: '10 min',
       emoji: '🍜',
-      colorTheme: TIRED_THEME,
     },
     {
       id: 'tired-05',
       mood: 'tired',
+      category: 'filling',
       title: 'Takeout You Actually Feel Good About',
       food: {
         name: 'Butter Chicken with Garlic Naan',
@@ -347,16 +351,16 @@ export const moodRecommendations = {
       playlist: {
         name: 'Chill Bollywood Vibes',
         description: "Melodic and easy. You don't have to understand the words to feel them.",
-        // Spotify "Bollywood Lounge" editorial playlist — verify URL
+        // Spotify "Bollywood Lounge" editorial playlist — verify URL (distinct from sad-02)
         url: 'https://open.spotify.com/playlist/37i9dQZF1DX3YSRoSdA634',
       },
       ambiance: 'Straight from the container, TV on, phone away.',
       description: 'Tired days deserve full flavor. This is the order that arrives and you immediately feel less bad about the day.',
+      reason: "Butter chicken is the ideal tired-day takeout: rich, warm, zero effort, arrives fully formed. The cold Mango Lassi contrasts the hot curry perfectly; the Chill Bollywood playlist fills a quiet evening without demanding anything.",
       tags: ['comfort-food', 'spicy'],
       intensity: 3,
       estimatedPrepTime: 'Order it',
       emoji: '🍛',
-      colorTheme: TIRED_THEME,
     },
   ],
 
@@ -365,6 +369,7 @@ export const moodRecommendations = {
     {
       id: 'sad-01',
       mood: 'sad',
+      category: 'comfort',
       title: 'Mac and Cheese, Made Properly',
       food: {
         name: 'Baked Mac and Cheese',
@@ -381,16 +386,17 @@ export const moodRecommendations = {
         url: 'https://open.spotify.com/playlist/37i9dQZF1DX7qK8ma5wgG1',
       },
       ambiance: 'Curtains drawn, candle if you have one, no obligations for at least an hour.',
-      description: 'This one feels like someone made it for you even though you made it yourself. That\'s the point.',
+      description: "This one feels like someone made it for you even though you made it yourself. That's the point.",
+      reason: "Baked mac and cheese is food that asks nothing and gives everything. Hot cocoa, a candle, and Sad Indie in the background is the complete setup — not a fix, just permission to feel what you're feeling.",
       tags: ['comfort-food', 'sweet'],
       intensity: 2,
       estimatedPrepTime: '35 min',
       emoji: '🧀',
-      colorTheme: SAD_THEME,
     },
     {
       id: 'sad-02',
       mood: 'sad',
+      category: 'snackable',
       title: 'Chocolate for the Hard Day',
       food: {
         name: 'Warm Brownies',
@@ -403,20 +409,21 @@ export const moodRecommendations = {
       playlist: {
         name: 'Songs to Cry To',
         description: 'The cathartic playlist. Let it do its work.',
-        // Spotify "Songs to Cry To" editorial playlist — verify URL before shipping
+        // Spotify "Songs to Cry To" editorial playlist — verify URL (distinct from tired-05)
         url: 'https://open.spotify.com/playlist/37i9dQZF1DX64Y3ftC1cGM',
       },
       ambiance: 'Low light. Wherever you feel least alone.',
       description: 'Not every sad day calls for a solution. Sometimes the only plan is brownies and letting the feeling be there.',
+      reason: "Warm brownies and one glass of something full-bodied aren't a cure — they're an acknowledgment. Songs to Cry To is the right playlist because it stops pretending the sadness isn't there.",
       tags: ['sweet', 'comfort-food'],
       intensity: 2,
       estimatedPrepTime: '30 min',
       emoji: '🍫',
-      colorTheme: SAD_THEME,
     },
     {
       id: 'sad-03',
       mood: 'sad',
+      category: 'comfort',
       title: 'Ramen, the Real Kind',
       food: {
         name: 'Tonkotsu Ramen',
@@ -429,20 +436,21 @@ export const moodRecommendations = {
       playlist: {
         name: 'Melancholy but Beautiful',
         description: 'Music that makes sadness feel like a human thing instead of a problem.',
-        // Spotify "Melancholy" editorial playlist — verify URL before shipping
+        // Spotify "Melancholy" editorial playlist — verify URL (distinct from happy-01)
         url: 'https://open.spotify.com/playlist/37i9dQZF1DX3Osh0TIXtitx',
       },
       ambiance: 'Steam, quiet, no screens for at least the first ten minutes.',
       description: "There's something about a long-cooked broth that feels like it took someone's time. Like it was made for exactly this.",
+      reason: "A rich tonkotsu broth feels like someone took time — that's the comfort mechanism. Sencha green tea is grounding, and the Melancholy but Beautiful playlist treats sadness as something human rather than something to solve.",
       tags: ['comfort-food', 'spicy'],
       intensity: 3,
       estimatedPrepTime: '15 min',
       emoji: '🍜',
-      colorTheme: SAD_THEME,
     },
     {
       id: 'sad-04',
       mood: 'sad',
+      category: 'comfort',
       title: 'Pancakes at 8pm',
       food: {
         name: 'Fluffy Buttermilk Pancakes',
@@ -460,15 +468,16 @@ export const moodRecommendations = {
       },
       ambiance: 'Soft light, quiet kitchen, the minor satisfaction of flipping them right.',
       description: "Pancakes don't care what time it is. They just want to help. Let them.",
+      reason: "Pancakes at 8pm work because they ignore the rules — small act of comfort on a hard day. Warm apple cider, the ritual of flipping them right, acoustic covers: all of it makes the next hour feel softer than the last.",
       tags: ['comfort-food', 'sweet', 'budget-friendly'],
       intensity: 1,
       estimatedPrepTime: '20 min',
       emoji: '🥞',
-      colorTheme: SAD_THEME,
     },
     {
       id: 'sad-05',
       mood: 'sad',
+      category: 'comfort',
       title: 'Grilled Cheese, Elevated Slightly',
       food: {
         name: 'Brie and Jam Grilled Cheese',
@@ -484,13 +493,13 @@ export const moodRecommendations = {
         // Spotify "Rainy Day Jazz" editorial playlist — verify URL
         url: 'https://open.spotify.com/playlist/37i9dQZF1DXbITWG1ZJKYt',
       },
-      ambiance: 'Rain outside if you\'re lucky. The sound of butter in a pan regardless.',
+      ambiance: "Rain outside if you're lucky. The sound of butter in a pan regardless.",
       description: 'Sometimes the nicest thing you can do for yourself is take a basic thing and make it slightly better. This is that.',
+      reason: "Brie with fig jam takes a little extra care — and caring for yourself is part of the point on a sad day. Earl Grey with milk is calming without being sleepy; Rainy Day Jazz turns whatever light is left into atmosphere.",
       tags: ['comfort-food', 'budget-friendly'],
       intensity: 2,
       estimatedPrepTime: '15 min',
       emoji: '🧇',
-      colorTheme: SAD_THEME,
     },
   ],
 
@@ -499,6 +508,7 @@ export const moodRecommendations = {
     {
       id: 'brutally-hungry-01',
       mood: 'brutally-hungry',
+      category: 'filling',
       title: 'The Double-Stack Verdict',
       food: {
         name: 'Double Smash Burger',
@@ -514,17 +524,18 @@ export const moodRecommendations = {
         // Spotify "Workout" editorial playlist — verify URL
         url: 'https://open.spotify.com/playlist/37i9dQZF1DX76Wlfdnj7AP',
       },
-      ambiance: 'Wherever you land. Floor counts. You\'re in crisis mode.',
+      ambiance: "Wherever you land. Floor counts. You're in crisis mode.",
       description: 'This is not a meal. This is a rescue operation. It will work.',
+      reason: "Two smash patties: maximum caloric density, minimum wait time. Large Coke, no ice, high-BPM music — this rec does not ask how your day was.",
       tags: ['fast', 'comfort-food'],
       intensity: 3,
       estimatedPrepTime: '15 min',
       emoji: '🍔',
-      colorTheme: HUNGRY_THEME,
     },
     {
       id: 'brutally-hungry-02',
       mood: 'brutally-hungry',
+      category: 'filling',
       title: 'Quesadilla with Absolutely No Time to Spare',
       food: {
         name: 'Loaded Chicken Quesadilla',
@@ -542,15 +553,16 @@ export const moodRecommendations = {
       },
       ambiance: 'Standing at the counter is fine. Plates optional.',
       description: 'When the hunger hits a specific level, the quesadilla is not a compromise. It is the correct answer.',
+      reason: "A loaded quesadilla cooks in seven minutes, one pan, payoff immediate — the correct answer to serious hunger. Cold water first; the fast music is not aesthetic, it's functional when you're cooking at full speed.",
       tags: ['fast', 'spicy', 'budget-friendly'],
       intensity: 3,
       estimatedPrepTime: '10 min',
       emoji: '🫓',
-      colorTheme: HUNGRY_THEME,
     },
     {
       id: 'brutally-hungry-03',
       mood: 'brutally-hungry',
+      category: 'filling',
       title: 'Rice Bowl. No Notes.',
       food: {
         name: 'Korean Beef Bibimbap',
@@ -568,15 +580,16 @@ export const moodRecommendations = {
       },
       ambiance: 'Fastest route to full. No ceremony necessary.',
       description: 'A bowl that earns its keep. Heavy enough to matter, specific enough to remember.',
+      reason: "Bibimbap is a complete, high-density meal in one bowl — and the gochujang gives it enough heat that it means business. Barley tea and K-Pop Hits are both there to keep you moving.",
       tags: ['fast', 'spicy', 'budget-friendly'],
       intensity: 3,
       estimatedPrepTime: '20 min',
       emoji: '🍚',
-      colorTheme: HUNGRY_THEME,
     },
     {
       id: 'brutally-hungry-04',
       mood: 'brutally-hungry',
+      category: 'filling',
       title: 'The Emergency Pasta',
       food: {
         name: 'Aglio e Olio',
@@ -592,17 +605,18 @@ export const moodRecommendations = {
         // Spotify "Italian Cooking" editorial playlist — verify URL
         url: 'https://open.spotify.com/playlist/37i9dQZF1DX782GGwMBUPm',
       },
-      ambiance: 'The stove is your only friend right now. Ten minutes. You\'ve got this.',
-      description: 'The pasta that exists precisely for this situation. It knows what it\'s for.',
+      ambiance: "The stove is your only friend right now. Ten minutes. You've got this.",
+      description: "The pasta that exists precisely for this situation. It knows what it's for.",
+      reason: "Aglio e olio is what the pantry was built for: five ingredients, 15 minutes, no planning required. The Italian Cooking Soundtrack is operatic and urgent in exactly the way cooking on an empty stomach feels.",
       tags: ['fast', 'budget-friendly', 'comfort-food'],
       intensity: 2,
       estimatedPrepTime: '15 min',
       emoji: '🍝',
-      colorTheme: HUNGRY_THEME,
     },
     {
       id: 'brutally-hungry-05',
       mood: 'brutally-hungry',
+      category: 'snackable',
       title: 'Nachos, Built to Feed a Crisis',
       food: {
         name: 'Loaded Sheet Pan Nachos',
@@ -619,20 +633,21 @@ export const moodRecommendations = {
         url: 'https://open.spotify.com/playlist/37i9dQZF1DXaXB8fQg7xqF',
       },
       ambiance: 'Pan goes directly on the table. No plates. Full commitment.',
-      description: 'There is no elegant version of this hunger. Nachos don\'t pretend otherwise and neither should you.',
+      description: "There is no elegant version of this hunger. Nachos don't pretend otherwise and neither should you.",
+      reason: "Sheet pan nachos at 400°F for eight minutes: fully loaded, no skill required, no patience needed. Limeade cuts through the cheese; Party Hits playing to a party of one is not ironic — it's just the energy this hunger requires.",
       tags: ['fast', 'spicy', 'budget-friendly'],
       intensity: 3,
       estimatedPrepTime: '12 min',
       emoji: '🧀',
-      colorTheme: HUNGRY_THEME,
     },
   ],
 
-  // ── MOVIE MODE (matcha accent) ────────────────────────────────────────────
+  // ── MOVIE NIGHT (matcha accent) ───────────────────────────────────────────
   'movie-mode': [
     {
       id: 'movie-mode-01',
       mood: 'movie-mode',
+      category: 'snackable',
       title: 'The Classic Setup',
       food: {
         name: 'Buttered Popcorn',
@@ -650,15 +665,16 @@ export const moodRecommendations = {
       },
       ambiance: 'Lights off, volume up, phone in another room if you can manage it.',
       description: "There's a reason this combination has survived for a hundred years. It just works.",
+      reason: "Buttered popcorn and a Cherry Coke over ice has survived a century because it works — snackable without any attention, drink lasts the full runtime. The cinematic scores playlist is pre-show; once the movie starts, it goes off.",
       tags: ['comfort-food', 'fast', 'budget-friendly'],
       intensity: 2,
       estimatedPrepTime: '5 min',
       emoji: '🍿',
-      colorTheme: MOVIE_THEME,
     },
     {
       id: 'movie-mode-02',
       mood: 'movie-mode',
+      category: 'snackable',
       title: 'Loaded Nachos for the Long Movie',
       food: {
         name: 'Queso Nachos',
@@ -676,15 +692,16 @@ export const moodRecommendations = {
       },
       ambiance: 'Blanket fort optional but encouraged. Remote already in hand.',
       description: 'The kind of setup where you pause the movie three times just to refill something. Worth every interruption.',
+      reason: "Queso nachos are designed for slow grazing across a two-hour runtime — no utensils, hands-free. A frozen margarita pitcher is the right commitment for a long movie; the Chill Evening Vibes playlist makes the pre-show its own event.",
       tags: ['comfort-food', 'spicy'],
       intensity: 3,
       estimatedPrepTime: '20 min',
       emoji: '🌮',
-      colorTheme: MOVIE_THEME,
     },
     {
       id: 'movie-mode-03',
       mood: 'movie-mode',
+      category: 'snackable',
       title: 'Pizza Night (The Good Version)',
       food: {
         name: 'Pepperoni and Hot Honey Pizza',
@@ -702,15 +719,16 @@ export const moodRecommendations = {
       },
       ambiance: 'Box on the coffee table, slices go directly from box to hand to mouth.',
       description: 'Movie night pizza is its own category of pizza. This is the peak of that category.',
+      reason: "Pepperoni pizza with hot honey is inherently cinematic — comes in a box, you eat from the box, setup is zero. Cold beer or root beer works for both versions of movie night; the 2000s alt-rock playlist handles the pre-show.",
       tags: ['comfort-food', 'spicy', 'fast'],
       intensity: 3,
       estimatedPrepTime: 'Order it',
       emoji: '🍕',
-      colorTheme: MOVIE_THEME,
     },
     {
       id: 'movie-mode-04',
       mood: 'movie-mode',
+      category: 'snackable',
       title: 'The Grazing Board',
       food: {
         name: 'Charcuterie and Crackers',
@@ -728,15 +746,17 @@ export const moodRecommendations = {
       },
       ambiance: 'Everything on a board in the center of the table. Low stakes. Everyone reaches.',
       description: "The meal that says: we're not in a hurry. We're doing this right.",
-      tags: ['comfort-food', 'budget-friendly'],
+      reason: "A charcuterie board is the ideal movie-night format — no utensils, no commitment to a full serving, nothing competing with the screen. Sparkling wine or cider and the Indie Folk playlist handle the rest.",
+      // budget-friendly tag removed: charcuterie with prosciutto + sparkling wine isn't budget
+      tags: ['comfort-food'],
       intensity: 2,
       estimatedPrepTime: '10 min',
       emoji: '🧀',
-      colorTheme: MOVIE_THEME,
     },
     {
       id: 'movie-mode-05',
       mood: 'movie-mode',
+      category: 'snackable',
       title: 'Spicy Wings, Full Commitment',
       food: {
         name: 'Buffalo Wings with Ranch',
@@ -752,22 +772,24 @@ export const moodRecommendations = {
         // Spotify "Late Night Drive" editorial playlist — verify URL
         url: 'https://open.spotify.com/playlist/37i9dQZF1DX6ziVCJnEm59',
       },
-      ambiance: 'Paper towels stacked on the side. These are messy and that\'s part of the deal.',
+      ambiance: "Paper towels stacked on the side. These are messy and that's part of the deal.",
       description: "Wings demand full presence. No multitasking. No side conversations. Just the sauce and whatever's on screen.",
+      reason: "Buffalo wings demand full attention — which is actually ideal for movie night. You're present, eating with your hands, not scrolling. The IPA holds up against the heat; Late Night Drive handles the pre-show.",
       tags: ['comfort-food', 'spicy', 'fast'],
       intensity: 3,
       estimatedPrepTime: '35 min',
       emoji: '🍗',
-      colorTheme: MOVIE_THEME,
     },
   ],
 
-  // ── DATE MODE (rose accent) ───────────────────────────────────────────────
+  // ── DATE NIGHT (rose accent) ──────────────────────────────────────────────
   'date-mode': [
     {
       id: 'date-mode-01',
       mood: 'date-mode',
-      title: 'The Pasta That Always Impresses',
+      category: 'elegant',
+      // Title updated from "The Pasta That Always Impresses" — food is Mushroom Risotto, not pasta
+      title: 'The Risotto That Always Impresses',
       food: {
         name: 'Mushroom Risotto',
         note: 'Arborio rice, white wine, parmesan — slow-cooked, absolutely worth the 35 minutes.',
@@ -784,15 +806,17 @@ export const moodRecommendations = {
       },
       ambiance: 'Two candles minimum. Plates that match. Distractions turned off.',
       description: 'This is a meal that says: I thought about this. Not in a loud way. In the way that matters.',
-      tags: ['comfort-food', 'sweet'],
+      reason: "Mushroom risotto takes 35 minutes of active cooking, and that effort is visible — which is part of what makes it work for date night. Chilled Pinot Grigio, two candles, jazz-leaning music: the setup says I thought about this.",
+      // sweet tag removed: mushroom risotto is savory, not sweet
+      tags: ['comfort-food'],
       intensity: 3,
       estimatedPrepTime: '35 min',
       emoji: '🍄',
-      colorTheme: DATE_THEME,
     },
     {
       id: 'date-mode-02',
       mood: 'date-mode',
+      category: 'elegant',
       title: 'Tapas for Two',
       food: {
         name: 'Spanish Tapas Spread',
@@ -810,15 +834,16 @@ export const moodRecommendations = {
       },
       ambiance: 'Small table, candle, everything within reach — the arrangement matters.',
       description: 'Tapas are designed for this. The sharing, the slowing down, the excuse to sit across from someone for two hours.',
+      reason: "Tapas are built for conversation — small plates, shared, nothing anchoring the pace. Sangria made the evening before shows preparation; Spanish guitar turns a kitchen table into something that feels like a destination.",
       tags: ['spicy', 'budget-friendly'],
       intensity: 3,
       estimatedPrepTime: '30 min',
       emoji: '🫒',
-      colorTheme: DATE_THEME,
     },
     {
       id: 'date-mode-03',
       mood: 'date-mode',
+      category: 'elegant',
       title: 'Sushi Night (Done Right)',
       food: {
         name: 'Hand Roll Sushi Night',
@@ -836,15 +861,16 @@ export const moodRecommendations = {
       },
       ambiance: 'All the ingredients out at once. You make them, you eat them immediately. Genuinely fun.',
       description: 'The date night that becomes a story. The one you describe later when someone asks how it went.',
+      reason: "Making hand rolls together turns the meal into the activity — no pressure of a formal dinner, just something genuinely fun. Warm sake in small cups has a ritual quality; Tokyo Night is unfamiliar enough to be interesting.",
       tags: ['healthy', 'sweet'],
       intensity: 3,
       estimatedPrepTime: '45 min',
       emoji: '🍣',
-      colorTheme: DATE_THEME,
     },
     {
       id: 'date-mode-04',
       mood: 'date-mode',
+      category: 'elegant',
       title: 'Steakhouse, at Home',
       food: {
         name: 'Pan-Seared Ribeye with Roasted Garlic Potatoes',
@@ -862,15 +888,16 @@ export const moodRecommendations = {
       },
       ambiance: 'The good plates. Cloth napkins if you have them. No phones on the table.',
       description: 'Some dinners are about showing what you can do in a kitchen. This is one of those dinners.',
+      reason: "A cast-iron ribeye with a butter baste is a clear statement of effort — skill, timing, the right equipment. A full-bodied Malbec is the non-optional pairing; Jazz Classics playing quietly confirms the meal is already doing the work.",
       tags: ['comfort-food'],
       intensity: 3,
       estimatedPrepTime: '40 min',
       emoji: '🥩',
-      colorTheme: DATE_THEME,
     },
     {
       id: 'date-mode-05',
       mood: 'date-mode',
+      category: 'elegant',
       title: 'Fondue and the Good Wine',
       food: {
         name: 'Swiss Cheese Fondue with Dipping Bread and Vegetables',
@@ -888,11 +915,11 @@ export const moodRecommendations = {
       },
       ambiance: 'One pot in the center, two forks, nothing else necessary.',
       description: 'Fondue is inherently intimate. There is no way to eat fondue and not be present with the person across from you.',
+      reason: "Fondue is structurally intimate — one pot, two forks, everything shared. Pouring the same wine you cook with creates a through-line, and French Café accordion music makes the evening feel somewhere else entirely.",
       tags: ['comfort-food', 'budget-friendly'],
       intensity: 2,
       estimatedPrepTime: '20 min',
       emoji: '🫕',
-      colorTheme: DATE_THEME,
     },
   ],
 };
